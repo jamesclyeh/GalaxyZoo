@@ -5,9 +5,9 @@ from scipy.io import savemat
 from scipy.misc import imread
 import sys
 
+batch_size = 10000
+
 def pickle_images(data_root):
-    batch_size = 10000
-    # data_root = '/Users/jamesyeh/Downloads/images_training_rev1'
     imgs = os.listdir(data_root)
     imgs_mat = None
     thumbnail_size = 100
@@ -20,10 +20,16 @@ def pickle_images(data_root):
             im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
             imgs_mat[i % batch_size] = N.array(im).flatten()
             if i != 0 and i % batch_size == 0:
-                N.save('galaxy_batch_' + str(i / batch_size), imgs_mat)
+                N.save('galaxy_batch_' + str(i / batch_size - 1), imgs_mat)
                 imgs_mat = None
         sys.stdout.write(".")
-    N.save('galaxy_batch_' + str(i / batch_size + 1), imgs_mat[:i % batch_size])
+    N.save('galaxy_batch_' + str(i / batch_size), imgs_mat[:i % batch_size])
+
+def pickle_labels(file_dir):
+    labels = N.genfromtxt(file_dir, skip_header=0, comments='#', delimiter=',')
+    for i in xrange(labels.shape[0] / batch_size):
+        N.save('galaxy_batch_solution_' + str(i), labels[i * batch_size:(i + 1) * batch_size])
+    N.save('galaxy_batch_solution_' + str(labels.shape[0] / batch_size + 1), labels[(batch_size * (labels.shape[0] / batch_size)):])
 
 if __name__ == "__main__":
-    pickle_images(sys.argv[0])
+    pickle_labels(str(sys.argv[1]))
