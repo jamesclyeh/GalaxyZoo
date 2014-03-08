@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # First we want to pull out small patches of the images, since it's easier
     # to train an RBM on these
     pipeline.items.append(
-        preprocessing.ExtractPatches(patch_shape=(16, 16), num_patches=300000)
+        preprocessing.ExtractGridPatches(patch_shape=(40, 40), patch_stride=(50, 50, 3))
     )
 
     # Next we contrast normalize the patches. The default arguments use the
