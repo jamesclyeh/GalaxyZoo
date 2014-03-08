@@ -16,8 +16,8 @@ class Galaxy(dense_design_matrix.DenseDesignMatrix):
         self.img_size = N.prod(self.img_shape)
 
         num_batches = total_imgs / batch_size
-        fdata_names = ['galaxy_batch_%i.npy' % i for i in range(0, num_batches)]
-        flabels_names = ['galaxy_batch_solution_%i.npy' % i for i in range(0, num_batches)]
+        fdata_names = ['data/galaxy_batch_%i.npy' % i for i in range(0, num_batches)]
+        flabels_names = ['data/galaxy_batch_solution_%i.npy' % i for i in range(0, num_batches)]
 
         x = N.zeros((batch_size * num_batches, self.img_size), dtype=dtype)
         y = N.zeros((batch_size * num_batches, self.n_classes), dtype=dtype)

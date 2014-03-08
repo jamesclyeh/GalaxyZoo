@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # First we want to pull out small patches of the images, since it's easier
     # to train an RBM on these
     pipeline.items.append(
-        preprocessing.ExtractGridPatches(patch_shape=(40, 40), patch_stride=(50, 50, 3))
+        preprocessing.ExtractGridPatches(patch_shape=(30, 30), patch_stride=(35, 35, 3))
     )
 
     # Next we contrast normalize the patches. The default arguments use the
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     path = './'
     train_example_path = path
     train.use_design_loc(os.path.join(train_example_path, 'galaxy_preprocessed_train_design.npy'))
-    
+
     train_pkl_path = os.path.join(train_example_path, 'galaxy_preprocessed_train.pkl')
     print(train_pkl_path);
     serial.save(train_pkl_path, train)

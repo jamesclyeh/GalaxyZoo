@@ -18,7 +18,7 @@ def pickle_images(data_root):
                 imgs_mat = N.ndarray(shape=(batch_size, thumbnail_size ** 2 * 3), dtype=N.uint8)
             im = Image.open(filepath)
             im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
-            imgs_mat[i % batch_size] = N.array(im).flatten()
+            imgs_mat[i % batch_size] = N.array(im).flatten('F')
             if i != 0 and i % batch_size == 0:
                 N.save('galaxy_batch_' + str(i / batch_size - 1), imgs_mat)
                 imgs_mat = None
