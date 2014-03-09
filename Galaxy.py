@@ -4,7 +4,7 @@ from pylearn2.datasets import dense_design_matrix
 
 class Galaxy(dense_design_matrix.DenseDesignMatrix):
 
-    def __init__(self,which_set='train', axes=('b', 0, 1, 'c'), preprocessor=None):
+    def __init__(self, which_set='train', axes=('b', 0, 1, 'c'), preprocessor=None):
         dtype = 'uint8'
         total_imgs = 61578
         batch_size = 10263
@@ -33,12 +33,14 @@ class Galaxy(dense_design_matrix.DenseDesignMatrix):
 
         Xs = {
             'train': x[0:ntrain],
-            'validation': x[ntrain:]
+            'validation': x[ntrain:],
+            'test': x[batch_size:batch_size*2]
         }
 
         Ys = {
             'train': y[0:ntrain],
-            'validation': y[ntrain:]
+            'validation': y[ntrain:],
+            'test': y[batch_size:batch_size*2]
         }
         X = Xs[which_set]
         y = Ys[which_set]
