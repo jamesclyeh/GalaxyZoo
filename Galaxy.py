@@ -10,13 +10,14 @@ class Galaxy(dense_design_matrix.DenseDesignMatrix):
         batch_size = 10263
         ntrain = 5 * batch_size
         nvalidation = batch_size
-        self.img_shape = (3, 100, 100)
+        img_dim = 20
+        self.img_shape = (3, img_dim, img_dim)
         self.n_classes = 37
         self.axes = axes;
-        self.img_size = N.prod(self.img_shape)
+        self.img_size = N.prod(self.img_shape) / 3
 
         num_batches = total_imgs / batch_size
-        fdata_names = ['data/galaxy_batch_%i.npy' % i for i in range(0, num_batches)]
+        fdata_names = ['data/galaxy_batch_20_%i_grey.npy' % i for i in range(0, num_batches)]
         flabels_names = ['data/galaxy_batch_solution_%i.npy' % i for i in range(0, num_batches)]
 
         x = N.zeros((batch_size * num_batches, self.img_size), dtype=dtype)
@@ -32,17 +33,19 @@ class Galaxy(dense_design_matrix.DenseDesignMatrix):
             #if nloaded >= ntrain + nvalidation : break;
 
         Xs = {
-            'train': x[0:ntrain],
+            #'train': x[0:ntrain],
+            'train': x[0:ntrain-batch_size],
             'validation': x[ntrain:],
-            'test': x[batch_size:batch_size*2]
+            'test': x[ntrain-batch_size:ntrain]
         }
 
         Ys = {
-            'train': y[0:ntrain],
+            #'train': y[0:ntrain],
+            'train': y[0:ntrain-batch_size],
             'validation': y[ntrain:],
-            'test': y[batch_size:batch_size*2]
+            'test': y[ntrain-batch_size:ntrain]
         }
-        X = Xs[which_set]
+        X = N.cast['float32'](Xs[which_set])
         y = Ys[which_set]
 
         if isinstance(y, list):
@@ -51,7 +54,7 @@ class Galaxy(dense_design_matrix.DenseDesignMatrix):
         if which_set == 'validation':
             assert y.shape[0] == batch_size
 
-        view_converter = dense_design_matrix.DefaultViewConverter((100, 100, 3), axes)
+        view_converter = dense_design_matrix.DefaultViewConverter((img_dim, img_dim, 3), axes)
         super(Galaxy, self).__init__(X=X, y=y, view_converter=view_converter)
 
         if preprocessor:

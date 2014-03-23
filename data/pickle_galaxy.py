@@ -7,25 +7,39 @@ import sys
 
 batch_size = 10263
 
-def pickle_images(data_root):
+def pickle_images(data_root, greyscale=False, save_name='galaxy_batch_'):
     imgs = os.listdir(data_root)
     imgs_mat = None
-    thumbnail_size = 100
+    thumbnail_size = 20
     for i, filename in enumerate(imgs):
         if not filename.startswith('.'):
             filepath = os.path.join(data_root, filename)
             if imgs_mat is None:
-                imgs_mat = N.ndarray(shape=(batch_size, thumbnail_size ** 2 * 3), dtype=N.uint8)
+                size = thumbnail_size ** 2
+                if not greyscale:
+                    size = size * 3
+                imgs_mat = N.ndarray(shape=(batch_size, size), dtype=N.uint8)
             im = Image.open(filepath)
+            if greyscale:
+                im = im.convert('L')
             im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
             imgs_mat[i % batch_size] = N.array(im).flatten('F')
             if i != 0 and i % batch_size == 0:
-                N.save('galaxy_batch_' + str(i / batch_size - 1), imgs_mat)
+                name = save_name + str(thumbnail_size) + '_' + str(i / batch_size - 1)
+                if greyscale:
+                    name = name + '_grey'
+                N.save(name, imgs_mat)
                 imgs_mat = None
         sys.stdout.write(".")
     #(fix) There is a .DS_Store file thus use filenum -1
     if (len(imgs) - 1) % batch_size != 0:
-        N.save('galaxy_batch_' + str(i / batch_size), imgs_mat[:i % batch_size])
+        name = save_name + str(thumbnail_size) + '_' + str(i / batch_size)
+        if greyscale:
+            name = name + '_grey'
+        N.save(name, imgs_mat[:i % batch_size])
+
+def pickle_testing(data_root, greyscale=False):
+    pickle_images(data_root, greyscale, 'galaxy_unknown_batch_')
 
 def pickle_labels(file_dir):
     labels = N.genfromtxt(file_dir, skip_header=0, comments='#', delimiter=',')
@@ -37,7 +51,11 @@ def pickle_labels(file_dir):
 if __name__ == "__main__":
     if sys.argv[1] == 'img':
         pickle_images(str(sys.argv[2]))
-    elif sys.argv[2] == 'label':
+    elif sys.argv[1] == 'img_grey':
+        pickle_images(str(sys.argv[2]), True)
+    elif sys.argv[1] == 'label':
         pickle_labels(str(sys.argv[2]))
+    elif sys.argv[1] == 'test_img':
+        pickle_testing(str(sys.argv[2]), True)
     else:
         print "Valid action include 'img' and 'label'."
