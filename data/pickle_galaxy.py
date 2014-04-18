@@ -8,35 +8,35 @@ import sys
 batch_size = 10263
 
 def pickle_images(data_root, greyscale=False, save_name='galaxy_batch_'):
-    imgs = os.listdir(data_root)
+    imgs = [img for img in os.listdir(data_root) if not img.startswith('.')]
     imgs_mat = None
-    thumbnail_size = 20
+    thumbnail_size = 100
     for i, filename in enumerate(imgs):
-        if not filename.startswith('.'):
-            filepath = os.path.join(data_root, filename)
-            if imgs_mat is None:
-                size = thumbnail_size ** 2
-                if not greyscale:
-                    size = size * 3
-                imgs_mat = N.ndarray(shape=(batch_size, size), dtype=N.uint8)
-            im = Image.open(filepath)
+        filepath = os.path.join(data_root, filename)
+        if i != 0 and i % batch_size == 0:
+            name = save_name + str(thumbnail_size) + '_' + str(i / batch_size - 1)
             if greyscale:
-                im = im.convert('L')
-            im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
-            imgs_mat[i % batch_size] = N.array(im).flatten('F')
-            if i != 0 and i % batch_size == 0:
-                name = save_name + str(thumbnail_size) + '_' + str(i / batch_size - 1)
-                if greyscale:
-                    name = name + '_grey'
-                N.save(name, imgs_mat)
-                imgs_mat = None
-        sys.stdout.write(".")
-    #(fix) There is a .DS_Store file thus use filenum -1
-    if (len(imgs) - 1) % batch_size != 0:
-        name = save_name + str(thumbnail_size) + '_' + str(i / batch_size)
+                name = name + '_grey'
+            N.save(name, imgs_mat)
+            imgs_mat = None
+        if imgs_mat is None:
+            size = thumbnail_size ** 2
+            if not greyscale:
+                size = size * 3
+            imgs_mat = N.ndarray(shape=(batch_size, size), dtype=N.uint8)
+        im = Image.open(filepath)
         if greyscale:
-            name = name + '_grey'
-        N.save(name, imgs_mat[:i % batch_size])
+            im = im.convert('L')
+        im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
+        imgs_mat[i % batch_size] = N.array(im).flatten('F')
+        if i % 100 == 0:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
+    name = save_name + str(thumbnail_size) + '_' + str(i / batch_size)
+    if greyscale:
+        name = name + '_grey'
+    N.save(name, imgs_mat[:i % batch_size + 1])
 
 def pickle_testing(data_root, greyscale=False):
     pickle_images(data_root, greyscale, 'galaxy_unknown_batch_')
